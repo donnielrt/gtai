@@ -1,7 +1,7 @@
 var car = require('./car.js');
 
 function agent(opt, world) {
-    this.car = new car(world, {})
+    this.car = new car(world, opt && opt.car)
     this.options = opt
 
     this.world = world
@@ -19,6 +19,7 @@ function agent(opt, world) {
     }
 
     this.car.onContact = (speed) => {
+        console.log('Contact! ', speed);
     	this.rewardBonus -= Math.max(speed, 50.0)
     };
     

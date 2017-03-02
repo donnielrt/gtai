@@ -158,7 +158,8 @@ world.prototype.init = function (renderer) {
 
 world.prototype.populate = function (n) {
     for (var i = 0; i < n; i++) {
-        var ag = new agent({}, this);
+        const opts = i === 0 ? { car: { isPlayer: true } } : {};
+        var ag = new agent(opts, this);
         this.agents.push(ag);
     }
 };

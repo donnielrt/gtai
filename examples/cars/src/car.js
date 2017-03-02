@@ -47,6 +47,8 @@ function car(world, opt) {
 
     this.world = world
 
+    this.isPlayer = opt && opt.isPlayer
+
     this.init()
 };
 
@@ -77,7 +79,7 @@ car.prototype.createPhysicalBody = function () {
     });
 
     this.wheels = {}
-    this.chassisBody.color = color.randomPastelHex();
+    this.chassisBody.color = this.isPlayer ? color.rgbToHex(204, 0, 0) : color.randomPastelHex();
     this.chassisBody.car = true;
     this.chassisBody.damping = this.linearDamping;
 
