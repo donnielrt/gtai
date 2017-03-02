@@ -157,12 +157,6 @@ car.prototype.createPhysicalBody = function () {
         angularDamping: 0.3
     });
 
-    this.shapeId = this.chassisBody.id;
-
-    if (this.isPlayer) {
-        window.playerShapeId = this.shapeId;
-    }
-
     this.wheels = {}
     this.chassisBody.color = this.isPlayer ? color.rgbToHex(204, 0, 0) : color.randomPastelHex();
     this.chassisBody.car = true;
@@ -175,6 +169,7 @@ car.prototype.createPhysicalBody = function () {
     boxShape.entity = 2
 
     this.chassisBody.addShape(boxShape);
+
     this.chassisBody.gl_create = (function (sprite, r) {
         this.overlay = new PIXI.Graphics();
         this.overlay.visible = true;
@@ -226,6 +221,10 @@ car.prototype.createPhysicalBody = function () {
 
     // Create the vehicle
     this.vehicle = new p2.TopDownVehicle(this.chassisBody);
+
+    if (this.isPlayer) {
+        window.playerShapeId = boxShape.id;
+    }
 
     // Add one front wheel and one back wheel - we don't actually need four :)
     this.frontWheel = this.vehicle.addWheel({

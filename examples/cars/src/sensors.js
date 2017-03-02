@@ -64,8 +64,6 @@ distanceSensor.prototype.update = function () {
     	this.entity = this.castedResult.shape.entity
 		this.hitPlayer = !this.car.isPlayer && this.castedResult.shape.id === window.playerShapeId;
 
-		console.log('Touched shape ', this.castedResult.shape.id)
-
     	vehicleBody.vectorToLocalFrame(this.localNormal, this.castedResult.normal)
     	vehicleBody.vectorToWorldFrame(this.globalRay, this.rayVector)
 
@@ -97,6 +95,7 @@ distanceSensor.prototype.read = function () {
 		this.data[0] = 1.0 - this.distance
 		this.data[1] = this.reflectionAngle
 		this.data[2] = this.entity === 2 ? 1.0 : 0.0 // is car?
+		this.data[3] = this.hitPlayer ? 1 : 0;
 	}
 
 	else {

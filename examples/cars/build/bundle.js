@@ -229,12 +229,6 @@ car.prototype.createPhysicalBody = function () {
         angularDamping: 0.3
     });
 
-    this.shapeId = this.chassisBody.id;
-
-    if (this.isPlayer) {
-        window.playerShapeId = this.shapeId;
-    }
-
     this.wheels = {}
     this.chassisBody.color = this.isPlayer ? color.rgbToHex(204, 0, 0) : color.randomPastelHex();
     this.chassisBody.car = true;
@@ -247,6 +241,7 @@ car.prototype.createPhysicalBody = function () {
     boxShape.entity = 2
 
     this.chassisBody.addShape(boxShape);
+
     this.chassisBody.gl_create = (function (sprite, r) {
         this.overlay = new PIXI.Graphics();
         this.overlay.visible = true;
@@ -298,6 +293,10 @@ car.prototype.createPhysicalBody = function () {
 
     // Create the vehicle
     this.vehicle = new p2.TopDownVehicle(this.chassisBody);
+
+    if (this.isPlayer) {
+        window.playerShapeId = boxShape.id;
+    }
 
     // Add one front wheel and one back wheel - we don't actually need four :)
     this.frontWheel = this.vehicle.addWheel({
@@ -1125,8 +1124,6 @@ distanceSensor.prototype.update = function () {
     	this.entity = this.castedResult.shape.entity
 		this.hitPlayer = !this.car.isPlayer && this.castedResult.shape.id === window.playerShapeId;
 
-		console.log('Touched shape ', this.castedResult.shape.id)
-
     	vehicleBody.vectorToLocalFrame(this.localNormal, this.castedResult.normal)
     	vehicleBody.vectorToWorldFrame(this.globalRay, this.rayVector)
 
@@ -1158,6 +1155,7 @@ distanceSensor.prototype.read = function () {
 		this.data[0] = 1.0 - this.distance
 		this.data[1] = this.reflectionAngle
 		this.data[2] = this.entity === 2 ? 1.0 : 0.0 // is car?
+		this.data[3] = this.hitPlayer ? 1 : 0;
 	}
 
 	else {
