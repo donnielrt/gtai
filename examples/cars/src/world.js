@@ -167,6 +167,13 @@ world.prototype.populate = function (n) {
 world.prototype.resize = function (renderer) {
 };
 
+const els = [
+    document.getElementById('perf-player'),
+    document.getElementById('perf-agent1'),
+    document.getElementById('perf-agent2'),
+    document.getElementById('perf-agent3'),
+]
+
 world.prototype.step = function (dt) {
     if (dt >= 0.02)  dt = 0.02;
 
@@ -177,6 +184,9 @@ world.prototype.step = function (dt) {
         agentUpdate = this.agents[i].step(dt);
         loss += this.agents[i].loss
         reward += this.agents[i].reward
+        
+        els[i].children[1].innerText = Math.round(reward);
+        els[i].children[2].innerText = Math.round(loss);
     }
 
     this.brains.shared.step()

@@ -62,6 +62,9 @@ distanceSensor.prototype.update = function () {
     if (this.hit = this.castedResult.hasHit()) {
     	this.distance = this.castedResult.fraction
     	this.entity = this.castedResult.shape.entity
+		this.hitPlayer = !this.car.isPlayer && this.castedResult.shape.id === window.playerShapeId;
+
+		console.log('Touched shape ', this.castedResult.shape.id)
 
     	vehicleBody.vectorToLocalFrame(this.localNormal, this.castedResult.normal)
     	vehicleBody.vectorToWorldFrame(this.globalRay, this.rayVector)
@@ -78,8 +81,13 @@ distanceSensor.prototype.update = function () {
 
 distanceSensor.prototype.draw = function (g) {
 	var dist = this.distance
+	
 	var c = color.rgbToHex(Math.floor((1-this.distance) * 255), Math.floor((this.distance) * 128), 128)
-	g.lineStyle(this.highlighted ? 0.04 : 0.01, c, 0.5)
+
+	const lineWidth = this.hitPlayer ? 0.1 : this.highlighted ? 0.04 : 0.01;
+	const lineColor = this.hitPlayer ? color.rgbToHex(204, 0, 0) : c;
+
+	g.lineStyle(lineWidth, lineColor, 0.5)
 	g.moveTo(this.start[0], this.start[1]);
 	g.lineTo(this.start[0] + this.direction[0] * this.length * dist, this.start[1] + this.direction[1] * this.length * dist);
 };

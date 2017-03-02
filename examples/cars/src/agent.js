@@ -14,6 +14,8 @@ function agent(opt, world) {
     this.timer = 0
     this.timerFrequency = 60 / this.frequency
 
+    this.isPlayer = opt && opt.car && opt.car.isPlayer;
+
     if (this.options.dynamicallyLoaded !== true) {
     	this.init(null, null)
     }
@@ -76,7 +78,11 @@ agent.prototype.step = function (dt) {
         var vel = this.car.chassisBody.velocity
         var speed = this.car.speed.velocity
 
-        this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
+        if (this.isPlayer) {
+            this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
+        } else {
+            this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10  - this.car.impact * 20 + this.car.bonus
+        }
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
             this.reward -= 1.0 

@@ -78,30 +78,108 @@ function car(world, opt) {
     this.options = {
         sensors: [
 
-            { type: 'distance', angle: -45, length: 5 },
-            { type: 'distance', angle: -30, length: 5 },
-            { type: 'distance', angle: -15, length: 5 },
-            { type: 'distance', angle: +0, length: 5 },
-            { type: 'distance', angle: +15, length: 5 },
-            { type: 'distance', angle: +30, length: 5 },
-            { type: 'distance', angle: +45, length: 5 },
+            {
+                type: 'distance',
+                angle: -45,
+                length: 5
+            },
+            {
+                type: 'distance',
+                angle: -30,
+                length: 5
+            },
+            {
+                type: 'distance',
+                angle: -15,
+                length: 5
+            },
+            {
+                type: 'distance',
+                angle: +0,
+                length: 5
+            },
+            {
+                type: 'distance',
+                angle: +15,
+                length: 5
+            },
+            {
+                type: 'distance',
+                angle: +30,
+                length: 5
+            },
+            {
+                type: 'distance',
+                angle: +45,
+                length: 5
+            },
 
-            { type: 'distance', angle: -225, length: 3 },
-            { type: 'distance', angle: -195, length: 3 },
-            { type: 'distance', angle: -180, length: 5 },
-            { type: 'distance', angle: -165, length: 3 },
-            { type: 'distance', angle: -135, length: 3 },
+            {
+                type: 'distance',
+                angle: -225,
+                length: 3
+            },
+            {
+                type: 'distance',
+                angle: -195,
+                length: 3
+            },
+            {
+                type: 'distance',
+                angle: -180,
+                length: 5
+            },
+            {
+                type: 'distance',
+                angle: -165,
+                length: 3
+            },
+            {
+                type: 'distance',
+                angle: -135,
+                length: 3
+            },
 
-            { type: 'distance', angle: -10, length: 10 },
-            { type: 'distance', angle: -3, length: 10 },
-            { type: 'distance', angle: +0, length: 10 },
-            { type: 'distance', angle: +3, length: 10 },
-            { type: 'distance', angle: +10, length: 10 },
+            {
+                type: 'distance',
+                angle: -10,
+                length: 10
+            },
+            {
+                type: 'distance',
+                angle: -3,
+                length: 10
+            },
+            {
+                type: 'distance',
+                angle: +0,
+                length: 10
+            },
+            {
+                type: 'distance',
+                angle: +3,
+                length: 10
+            },
+            {
+                type: 'distance',
+                angle: +10,
+                length: 10
+            },
 
-            { type: 'distance', angle: +90, length: 7 },
-            { type: 'distance', angle: -90, length: 7 },
+            {
+                type: 'distance',
+                angle: +90,
+                length: 7
+            },
+            {
+                type: 'distance',
+                angle: -90,
+                length: 7
+            },
 
-            { type: 'speed' }
+            {
+                type: 'speed'
+            }
 
         ]
     };
@@ -116,6 +194,7 @@ function car(world, opt) {
 
     this.contact = 0
     this.impact = 0
+    this.bonus = 0
 
     this.world = world
 
@@ -137,7 +216,7 @@ car.prototype.init = function () {
     for (var i = 0; i < this.sensors.length; i++) {
         this.states += this.sensors[i].dimensions
     }
-    
+
     this.punishment = 0
     this.timer = 0.0
 };
@@ -150,12 +229,21 @@ car.prototype.createPhysicalBody = function () {
         angularDamping: 0.3
     });
 
+    this.shapeId = this.chassisBody.id;
+
+    if (this.isPlayer) {
+        window.playerShapeId = this.shapeId;
+    }
+
     this.wheels = {}
     this.chassisBody.color = this.isPlayer ? color.rgbToHex(204, 0, 0) : color.randomPastelHex();
     this.chassisBody.car = true;
     this.chassisBody.damping = this.linearDamping;
 
-    var boxShape = new p2.Box({ width: 0.5, height: 1 });
+    var boxShape = new p2.Box({
+        width: 0.5,
+        height: 1
+    });
     boxShape.entity = 2
 
     this.chassisBody.addShape(boxShape);
@@ -168,11 +256,13 @@ car.prototype.createPhysicalBody = function () {
         var wheels = new PIXI.Graphics()
         sprite.addChild(wheels)
 
-        var w = 0.12, h = 0.22
+        var w = 0.12,
+            h = 0.22
         var space = 0.07
         var col = "#" + this.chassisBody.color.toString(16)
-            col = parseInt(tc(col).darken(50).toHex(), 16)
-        var alpha = 0.35, alphal = 0.9
+        col = parseInt(tc(col).darken(50).toHex(), 16)
+        var alpha = 0.35,
+            alphal = 0.9
 
         var tl = new PIXI.Graphics()
         var tr = new PIXI.Graphics()
@@ -204,7 +294,7 @@ car.prototype.createPhysicalBody = function () {
         // wheels.lineStyle(0.01, col, alphal)
         wheels.drawRect(0.25 - w / 2, -0.5 + space, w, h)
         wheels.endFill()
-    }).bind(this); 
+    }).bind(this);
 
     // Create the vehicle
     this.vehicle = new p2.TopDownVehicle(this.chassisBody);
@@ -241,7 +331,7 @@ car.prototype.updateSensors = function () {
 
 car.prototype.drawSensors = function () {
     if (this.overlay.visible !== true) {
-        return ;
+        return;
     }
 
     this.overlay.clear();
@@ -255,34 +345,46 @@ car.prototype.addToWorld = function () {
     this.chassisBody.position[0] = (Math.random() - .5) * this.world.size.w
     this.chassisBody.position[1] = (Math.random() - .5) * this.world.size.h
     this.chassisBody.angle = (Math.random() * 2.0 - 1.0) * Math.PI
+    this.chassisBody.isPlayer = this.isPlayer;
 
     this.world.p2.addBody(this.chassisBody)
     this.vehicle.addToWorld(this.world.p2)
 
-   this.world.p2.on("beginContact", (event) => {
-
+    this.world.p2.on("beginContact", (event) => {
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
             // this.onContact( Math.pow(this.chassisBody.velocity[1], 2) + Math.pow(this.chassisBody.velocity[0], 2) );
+            if (!this.isPlayer && event.bodyB.isPlayer || event.bodyA.isPlayer) {
+                this.bonus += 1;
+            } 
             this.contact++;
         }
 
-   });
+    });
 
-   this.world.p2.on("endContact", (event) => {
-
+    this.world.p2.on("endContact", (event) => {
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
+            if (!this.isPlayer && event.bodyB.isPlayer || event.bodyA.isPlayer) {
+                this.bonus -= 1;
+            } 
             this.contact--;
         }
 
-   })
+    })
 
-   this.world.p2.on("impact", (event) => {
-
+    this.world.p2.on("impact", (event) => {
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
-            this.impact = Math.sqrt(Math.pow(this.chassisBody.velocity[0], 2) + Math.pow(this.chassisBody.velocity[1], 2))
+            const impact = Math.sqrt(Math.pow(this.chassisBody.velocity[0], 2) + Math.pow(this.chassisBody.velocity[1], 2));
+            if (this.isPlayer) {
+                console.info('Ugh, I got hit!', impact);
+            } else if (event.bodyB.isPlayer || event.bodyA.isPlayer) {
+                // Cop finds the player!
+                this.bonus += impact;
+                console.info('Booyah! ', impact);
+            }
+            this.impact = impact
         }
 
-   })
+    })
 };
 
 car.prototype.handleKeyInput = function (k) {
@@ -321,16 +423,12 @@ car.prototype.handle = function (throttle, handlebar) {
         if (this.backWheel.getSpeed() > 0.1) {
             this.backWheel.setBrakeForce(-throttle * this.maxBrakeForce)
             this.backWheel.engineForce = 0.0
-        }
-
-        else {
+        } else {
             this.backWheel.setBrakeForce(0)
             this.backWheel.engineForce = throttle * this.maxBackwardForce
         }
 
-    }
-
-    else {
+    } else {
         this.backWheel.setBrakeForce(0)
         this.backWheel.engineForce = force
     }
@@ -395,6 +493,8 @@ function agent(opt, world) {
     this.timer = 0
     this.timerFrequency = 60 / this.frequency
 
+    this.isPlayer = opt && opt.car && opt.car.isPlayer;
+
     if (this.options.dynamicallyLoaded !== true) {
     	this.init(null, null)
     }
@@ -457,7 +557,11 @@ agent.prototype.step = function (dt) {
         var vel = this.car.chassisBody.velocity
         var speed = this.car.speed.velocity
 
-        this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
+        if (this.isPlayer) {
+            this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
+        } else {
+            this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10  - this.car.impact * 20 + this.car.bonus
+        }
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
             this.reward -= 1.0 
@@ -1019,6 +1123,9 @@ distanceSensor.prototype.update = function () {
     if (this.hit = this.castedResult.hasHit()) {
     	this.distance = this.castedResult.fraction
     	this.entity = this.castedResult.shape.entity
+		this.hitPlayer = !this.car.isPlayer && this.castedResult.shape.id === window.playerShapeId;
+
+		console.log('Touched shape ', this.castedResult.shape.id)
 
     	vehicleBody.vectorToLocalFrame(this.localNormal, this.castedResult.normal)
     	vehicleBody.vectorToWorldFrame(this.globalRay, this.rayVector)
@@ -1035,8 +1142,13 @@ distanceSensor.prototype.update = function () {
 
 distanceSensor.prototype.draw = function (g) {
 	var dist = this.distance
+	
 	var c = color.rgbToHex(Math.floor((1-this.distance) * 255), Math.floor((this.distance) * 128), 128)
-	g.lineStyle(this.highlighted ? 0.04 : 0.01, c, 0.5)
+
+	const lineWidth = this.hitPlayer ? 0.1 : this.highlighted ? 0.04 : 0.01;
+	const lineColor = this.hitPlayer ? color.rgbToHex(204, 0, 0) : c;
+
+	g.lineStyle(lineWidth, lineColor, 0.5)
 	g.moveTo(this.start[0], this.start[1]);
 	g.lineTo(this.start[0] + this.direction[0] * this.length * dist, this.start[1] + this.direction[1] * this.length * dist);
 };
@@ -2499,6 +2611,13 @@ world.prototype.populate = function (n) {
 world.prototype.resize = function (renderer) {
 };
 
+const els = [
+    document.getElementById('perf-player'),
+    document.getElementById('perf-agent1'),
+    document.getElementById('perf-agent2'),
+    document.getElementById('perf-agent3'),
+]
+
 world.prototype.step = function (dt) {
     if (dt >= 0.02)  dt = 0.02;
 
@@ -2509,6 +2628,9 @@ world.prototype.step = function (dt) {
         agentUpdate = this.agents[i].step(dt);
         loss += this.agents[i].loss
         reward += this.agents[i].reward
+        
+        els[i].children[1].innerText = Math.round(reward);
+        els[i].children[2].innerText = Math.round(loss);
     }
 
     this.brains.shared.step()
