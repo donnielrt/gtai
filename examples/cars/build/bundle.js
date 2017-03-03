@@ -375,6 +375,8 @@ car.prototype.addToWorld = function () {
     })
 
     this.world.p2.on("impact", (event) => {
+        this.bonus = 0;
+
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
             const impact = Math.sqrt(Math.pow(this.chassisBody.velocity[0], 2) + Math.pow(this.chassisBody.velocity[1], 2));
 
@@ -385,8 +387,7 @@ car.prototype.addToWorld = function () {
             } else if (event.bodyB.isPlayer || event.bodyA.isPlayer) {
                 // Cop finds the player!
                 this.bonus += impact;
-                // impact should count, but only a little
-                this.impact = (impact / 5);
+                this.impact = impact;
                 // console.info('Booyah! ', impact);
             }
         }
@@ -567,7 +568,7 @@ agent.prototype.step = function (dt) {
         if (this.isPlayer) {
             this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
         } else {
-            this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10  - this.car.impact * 20 + this.car.bonus * 30
+            this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10  - this.car.impact * 20 + this.car.bonus * 50
         }
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
@@ -2625,10 +2626,8 @@ world.prototype.populate = function (n) {
         var ag = new agent(opts, this);
 
         const colorInHex = '#' + window.carColors[i].toString(16);
-
         els[i].children[0].style.color = colorInHex;
 
-        ag.brain.learning = !isPlayer;
         this.agents.push(ag);
     }
 };
@@ -2648,7 +2647,7 @@ world.prototype.step = function (dt) {
         reward += this.agents[i].reward
 
         els[i].children[1].innerText = Math.round(reward);
-        els[i].children[2].innerText = loss;
+        els[i].children[2].innerText = Math.round(loss);
     }
 
     this.brains.shared.step()

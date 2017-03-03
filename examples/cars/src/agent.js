@@ -81,7 +81,7 @@ agent.prototype.step = function (dt) {
         if (this.isPlayer) {
             this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
         } else {
-            this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10  - this.car.impact * 20 + this.car.bonus * 30
+            this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10  - this.car.impact * 20 + this.car.bonus * 50
         }
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration

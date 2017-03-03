@@ -171,10 +171,8 @@ world.prototype.populate = function (n) {
         var ag = new agent(opts, this);
 
         const colorInHex = '#' + window.carColors[i].toString(16);
-
         els[i].children[0].style.color = colorInHex;
 
-        ag.brain.learning = !isPlayer;
         this.agents.push(ag);
     }
 };
@@ -194,7 +192,7 @@ world.prototype.step = function (dt) {
         reward += this.agents[i].reward
 
         els[i].children[1].innerText = Math.round(reward);
-        els[i].children[2].innerText = loss;
+        els[i].children[2].innerText = Math.round(loss);
     }
 
     this.brains.shared.step()

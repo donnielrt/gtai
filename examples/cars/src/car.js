@@ -303,6 +303,8 @@ car.prototype.addToWorld = function () {
     })
 
     this.world.p2.on("impact", (event) => {
+        this.bonus = 0;
+
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
             const impact = Math.sqrt(Math.pow(this.chassisBody.velocity[0], 2) + Math.pow(this.chassisBody.velocity[1], 2));
 
@@ -313,8 +315,7 @@ car.prototype.addToWorld = function () {
             } else if (event.bodyB.isPlayer || event.bodyA.isPlayer) {
                 // Cop finds the player!
                 this.bonus += impact;
-                // impact should count, but only a little
-                this.impact = (impact / 5);
+                this.impact = impact;
                 // console.info('Booyah! ', impact);
             }
         }
