@@ -105,6 +105,13 @@
 		#perf-player td {
 			color: #cc0000;
 		}
+
+		.floating-window {
+			position: fixed;
+			top: 0;
+			right: 0;
+			
+		}
 	</style>
 	<link rel="stylesheet" type="text/css" href="vendor/chartist.min.css">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -141,7 +148,8 @@
 
 	<div id="container" class="wrap"></div>
 
-	<div class="wrap">
+	<div class="floating-window">
+		<p>Agent's lifespan: <span id="agent-age">0</span>s</p>
 		<table>
 			<thead>
 				<tr>
@@ -176,7 +184,6 @@
 	</div>
 
 	<div class="wrap">
-		<p>Agent's lifespan: <span id="agent-age">0</span>s</p>
 		<div class="ct-chart ct-double-octave app-chart"></div>
 	</div>
 

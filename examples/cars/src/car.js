@@ -282,8 +282,9 @@ car.prototype.addToWorld = function () {
             // this.onContact( Math.pow(this.chassisBody.velocity[1], 2) + Math.pow(this.chassisBody.velocity[0], 2) );
             if (!this.isPlayer && event.bodyB.isPlayer || event.bodyA.isPlayer) {
                 this.bonus += 1;
-            } 
-            this.contact++;
+            } else {
+                this.contact++;
+            }
         }
 
     });
@@ -292,8 +293,9 @@ car.prototype.addToWorld = function () {
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
             if (!this.isPlayer && event.bodyB.isPlayer || event.bodyA.isPlayer) {
                 this.bonus -= 1;
-            } 
-            this.contact--;
+            } else {
+                this.contact--;
+            }
         }
 
     })
@@ -301,14 +303,17 @@ car.prototype.addToWorld = function () {
     this.world.p2.on("impact", (event) => {
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
             const impact = Math.sqrt(Math.pow(this.chassisBody.velocity[0], 2) + Math.pow(this.chassisBody.velocity[1], 2));
+            
             if (this.isPlayer) {
-                console.info('Ugh, I got hit!', impact);
+                // console.info('Ugh, I got hit!', impact);
+                this.impact = impact
             } else if (event.bodyB.isPlayer || event.bodyA.isPlayer) {
                 // Cop finds the player!
                 this.bonus += impact;
-                console.info('Booyah! ', impact);
+                // console.info('Booyah! ', impact);
+            } else {
+                this.impact = impact
             }
-            this.impact = impact
         }
 
     })
