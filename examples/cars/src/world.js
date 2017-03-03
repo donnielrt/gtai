@@ -156,11 +156,24 @@ world.prototype.init = function (renderer) {
     this.size = { w, h }
 };
 
+const els = [
+    document.getElementById('perf-player'),
+    document.getElementById('perf-agent1'),
+    document.getElementById('perf-agent2'),
+    document.getElementById('perf-agent3'),
+]
+
 world.prototype.populate = function (n) {
+    window.carColors = [];
     for (var i = 0; i < n; i++) {
         const isPlayer = i === 0;
-        const opts = { car: { isPlayer: isPlayer } };
+        const opts = { car: { isPlayer: isPlayer, id: i } };
         var ag = new agent(opts, this);
+
+        const colorInHex = '#' + window.carColors[i].toString(16);
+
+        els[i].children[0].style.color = colorInHex;
+
         ag.brain.learning = !isPlayer;
         this.agents.push(ag);
     }
@@ -168,13 +181,6 @@ world.prototype.populate = function (n) {
 
 world.prototype.resize = function (renderer) {
 };
-
-const els = [
-    document.getElementById('perf-player'),
-    document.getElementById('perf-agent1'),
-    document.getElementById('perf-agent2'),
-    document.getElementById('perf-agent3'),
-]
 
 world.prototype.step = function (dt) {
     if (dt >= 0.02)  dt = 0.02;
@@ -186,9 +192,9 @@ world.prototype.step = function (dt) {
         agentUpdate = this.agents[i].step(dt);
         loss += this.agents[i].loss
         reward += this.agents[i].reward
-        
+
         els[i].children[1].innerText = Math.round(reward);
-        els[i].children[2].innerText = Math.round(loss);
+        els[i].children[2].innerText = loss;
     }
 
     this.brains.shared.step()

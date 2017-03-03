@@ -99,7 +99,7 @@ distanceSensor.prototype.read = function () {
 		this.data[0] = 1.0 - this.distance
 		this.data[1] = this.reflectionAngle
 		this.data[2] = this.entity === 2 ? 1.0 : 0.0 // is car?
-		this.data[3] = this.hitPlayer ? 1 : 0;
+		this.data[3] = this.hitPlayer ? 0 : 1;
 	}
 
 	else {

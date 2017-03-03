@@ -112,6 +112,8 @@ function car(world, opt) {
         ]
     };
 
+    this.id = opt.id;
+
     this.maxSteer = Math.PI / 7
     this.maxEngineForce = 10
     this.maxBrakeForce = 5
@@ -161,6 +163,8 @@ car.prototype.createPhysicalBody = function () {
     this.chassisBody.color = this.isPlayer ? color.rgbToHex(204, 0, 0) : color.randomPastelHex();
     this.chassisBody.car = true;
     this.chassisBody.damping = this.linearDamping;
+
+    window.carColors[this.id] = this.chassisBody.color;
 
     var boxShape = new p2.Box({
         width: 0.5,
@@ -279,11 +283,10 @@ car.prototype.addToWorld = function () {
 
     this.world.p2.on("beginContact", (event) => {
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
+            this.contact++;
             // this.onContact( Math.pow(this.chassisBody.velocity[1], 2) + Math.pow(this.chassisBody.velocity[0], 2) );
             if (!this.isPlayer && event.bodyB.isPlayer || event.bodyA.isPlayer) {
                 this.bonus += 1;
-            } else {
-                this.contact++;
             }
         }
 
@@ -291,10 +294,9 @@ car.prototype.addToWorld = function () {
 
     this.world.p2.on("endContact", (event) => {
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
+            this.contact--;
             if (!this.isPlayer && event.bodyB.isPlayer || event.bodyA.isPlayer) {
                 this.bonus -= 1;
-            } else {
-                this.contact--;
             }
         }
 
@@ -303,16 +305,17 @@ car.prototype.addToWorld = function () {
     this.world.p2.on("impact", (event) => {
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
             const impact = Math.sqrt(Math.pow(this.chassisBody.velocity[0], 2) + Math.pow(this.chassisBody.velocity[1], 2));
+
+            this.impact = impact;
             
             if (this.isPlayer) {
                 // console.info('Ugh, I got hit!', impact);
-                this.impact = impact
             } else if (event.bodyB.isPlayer || event.bodyA.isPlayer) {
                 // Cop finds the player!
                 this.bonus += impact;
+                // impact should count, but only a little
+                this.impact = (impact / 5);
                 // console.info('Booyah! ', impact);
-            } else {
-                this.impact = impact
             }
         }
 

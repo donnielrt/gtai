@@ -112,6 +112,21 @@
 			right: 0;
 			
 		}
+
+		.agent-performance {
+			margin: 0 10px;
+		}
+
+		.agent-performance td,
+		.agent-performance th {
+			padding: 2px 5px;
+		}
+
+		.agent-performance th:first-of-type,
+		.agent-performance td:first-of-type {
+			width: 50%;
+			text-align: left;
+		}
 	</style>
 	<link rel="stylesheet" type="text/css" href="vendor/chartist.min.css">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -150,7 +165,7 @@
 
 	<div class="floating-window">
 		<p>Agent's lifespan: <span id="agent-age">0</span>s</p>
-		<table>
+		<table class="agent-performance">
 			<thead>
 				<tr>
 					<th>Agent</th>

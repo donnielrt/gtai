@@ -81,7 +81,7 @@ agent.prototype.step = function (dt) {
         if (this.isPlayer) {
             this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
         } else {
-            this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10  - this.car.impact * 20 + this.car.bonus
+            this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10  - this.car.impact * 20 + this.car.bonus * 30
         }
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
@@ -91,7 +91,7 @@ agent.prototype.step = function (dt) {
         this.loss = this.brain.learn(this.reward)
         this.action = this.brain.policy(d)
         
-        this.rewardBonus = 0.0
+        this.rewardBonus = this.car.bonus ? 10 : 0;
         this.car.impact = 0
     }
     

@@ -184,6 +184,8 @@ function car(world, opt) {
         ]
     };
 
+    this.id = opt.id;
+
     this.maxSteer = Math.PI / 7
     this.maxEngineForce = 10
     this.maxBrakeForce = 5
@@ -233,6 +235,8 @@ car.prototype.createPhysicalBody = function () {
     this.chassisBody.color = this.isPlayer ? color.rgbToHex(204, 0, 0) : color.randomPastelHex();
     this.chassisBody.car = true;
     this.chassisBody.damping = this.linearDamping;
+
+    window.carColors[this.id] = this.chassisBody.color;
 
     var boxShape = new p2.Box({
         width: 0.5,
@@ -351,11 +355,10 @@ car.prototype.addToWorld = function () {
 
     this.world.p2.on("beginContact", (event) => {
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
+            this.contact++;
             // this.onContact( Math.pow(this.chassisBody.velocity[1], 2) + Math.pow(this.chassisBody.velocity[0], 2) );
             if (!this.isPlayer && event.bodyB.isPlayer || event.bodyA.isPlayer) {
                 this.bonus += 1;
-            } else {
-                this.contact++;
             }
         }
 
@@ -363,10 +366,9 @@ car.prototype.addToWorld = function () {
 
     this.world.p2.on("endContact", (event) => {
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
+            this.contact--;
             if (!this.isPlayer && event.bodyB.isPlayer || event.bodyA.isPlayer) {
                 this.bonus -= 1;
-            } else {
-                this.contact--;
             }
         }
 
@@ -375,16 +377,17 @@ car.prototype.addToWorld = function () {
     this.world.p2.on("impact", (event) => {
         if ((event.bodyA === this.chassisBody || event.bodyB === this.chassisBody)) {
             const impact = Math.sqrt(Math.pow(this.chassisBody.velocity[0], 2) + Math.pow(this.chassisBody.velocity[1], 2));
+
+            this.impact = impact;
             
             if (this.isPlayer) {
                 // console.info('Ugh, I got hit!', impact);
-                this.impact = impact
             } else if (event.bodyB.isPlayer || event.bodyA.isPlayer) {
                 // Cop finds the player!
                 this.bonus += impact;
+                // impact should count, but only a little
+                this.impact = (impact / 5);
                 // console.info('Booyah! ', impact);
-            } else {
-                this.impact = impact
             }
         }
 
@@ -564,7 +567,7 @@ agent.prototype.step = function (dt) {
         if (this.isPlayer) {
             this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10 - this.car.impact * 20
         } else {
-            this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10  - this.car.impact * 20 + this.car.bonus
+            this.reward = Math.pow(vel[1], 2) - 0.1 * Math.pow(vel[0], 2) - this.car.contact * 10  - this.car.impact * 20 + this.car.bonus * 30
         }
 
         if (Math.abs(speed) < 1e-2) { // punish no movement; it harms exploration
@@ -574,7 +577,7 @@ agent.prototype.step = function (dt) {
         this.loss = this.brain.learn(this.reward)
         this.action = this.brain.policy(d)
         
-        this.rewardBonus = 0.0
+        this.rewardBonus = this.car.bonus ? 10 : 0;
         this.car.impact = 0
     }
     
@@ -1164,7 +1167,7 @@ distanceSensor.prototype.read = function () {
 		this.data[0] = 1.0 - this.distance
 		this.data[1] = this.reflectionAngle
 		this.data[2] = this.entity === 2 ? 1.0 : 0.0 // is car?
-		this.data[3] = this.hitPlayer ? 1 : 0;
+		this.data[3] = this.hitPlayer ? 0 : 1;
 	}
 
 	else {
@@ -2607,11 +2610,24 @@ world.prototype.init = function (renderer) {
     this.size = { w, h }
 };
 
+const els = [
+    document.getElementById('perf-player'),
+    document.getElementById('perf-agent1'),
+    document.getElementById('perf-agent2'),
+    document.getElementById('perf-agent3'),
+]
+
 world.prototype.populate = function (n) {
+    window.carColors = [];
     for (var i = 0; i < n; i++) {
         const isPlayer = i === 0;
-        const opts = { car: { isPlayer: isPlayer } };
+        const opts = { car: { isPlayer: isPlayer, id: i } };
         var ag = new agent(opts, this);
+
+        const colorInHex = '#' + window.carColors[i].toString(16);
+
+        els[i].children[0].style.color = colorInHex;
+
         ag.brain.learning = !isPlayer;
         this.agents.push(ag);
     }
@@ -2619,13 +2635,6 @@ world.prototype.populate = function (n) {
 
 world.prototype.resize = function (renderer) {
 };
-
-const els = [
-    document.getElementById('perf-player'),
-    document.getElementById('perf-agent1'),
-    document.getElementById('perf-agent2'),
-    document.getElementById('perf-agent3'),
-]
 
 world.prototype.step = function (dt) {
     if (dt >= 0.02)  dt = 0.02;
@@ -2637,9 +2646,9 @@ world.prototype.step = function (dt) {
         agentUpdate = this.agents[i].step(dt);
         loss += this.agents[i].loss
         reward += this.agents[i].reward
-        
+
         els[i].children[1].innerText = Math.round(reward);
-        els[i].children[2].innerText = Math.round(loss);
+        els[i].children[2].innerText = loss;
     }
 
     this.brains.shared.step()
