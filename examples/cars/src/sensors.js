@@ -23,13 +23,14 @@ function distanceSensor(car, opt) {
 
     this.castedResult = new p2.RaycastResult()
     this.hit = false
+	this.hitPlayer = false
     this.setDefault()
 
     this.data = new Float64Array(this.dimensions);
     this.highlighted = false
 }
 
-distanceSensor.prototype.dimensions = 3
+distanceSensor.prototype.dimensions = 4
 
 distanceSensor.prototype.updateLength = function (v) {
 	this.length = v
@@ -41,6 +42,7 @@ distanceSensor.prototype.updateLength = function (v) {
 distanceSensor.prototype.setDefault = function () {
 	this.distance = 1.0
 	this.entity = 0
+	this.hitPlayer = 0
 	this.localNormal[0] = 0
 	this.localNormal[1] = 0
 	this.reflectionAngle = 0
@@ -58,6 +60,8 @@ distanceSensor.prototype.update = function () {
     this.castedResult.reset();
 
     vehicleBody.world.raycast(this.castedResult, this.ray);
+
+	this.hitPlayer = false;
 
     if (this.hit = this.castedResult.hasHit()) {
     	this.distance = this.castedResult.fraction

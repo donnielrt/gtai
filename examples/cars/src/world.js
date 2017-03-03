@@ -25,7 +25,7 @@ function world() {
 
     this.obstacles = []
 
-    var input = 118, actions = 2
+    var input = 156, actions = 2
     this.brains = {
 
         actor: new window.neurojs.Network.Model([
@@ -158,8 +158,10 @@ world.prototype.init = function (renderer) {
 
 world.prototype.populate = function (n) {
     for (var i = 0; i < n; i++) {
-        const opts = i === 0 ? { car: { isPlayer: true } } : {};
+        const isPlayer = i === 0;
+        const opts = { car: { isPlayer: isPlayer } };
         var ag = new agent(opts, this);
+        ag.brain.learning = !isPlayer;
         this.agents.push(ag);
     }
 };
